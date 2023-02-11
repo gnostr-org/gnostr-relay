@@ -1,5 +1,12 @@
-FROM docker.io/rust:latest as builder
+#<<<<<<< HEAD
+#FROM docker.io/rust:latest as builder
 
+#=======
+FROM docker.io/library/rust:1-bookworm as builder
+RUN apt-get update \
+    && apt-get install -y cmake protobuf-compiler \
+    && rm -rf /var/lib/apt/lists/*
+#>>>>>>> 81f8256 (fix: container builds support protobuf compilation)
 RUN USER=root cargo install cargo-auditable
 RUN USER=root cargo new --bin nostr-rs-relay
 WORKDIR ./nostr-rs-relay
@@ -12,6 +19,8 @@ RUN rm src/*.rs
 
 # copy project source code
 COPY ./src ./src
+COPY ./proto ./proto
+COPY ./build.rs ./build.rs
 
 # build auditable release using locked deps
 RUN rm ./target/release/deps/nostr*relay*
