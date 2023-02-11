@@ -24,7 +24,7 @@ ARG APP=/usr/src/app
 ARG APP_DATA=/usr/src/app/db
 RUN apt update && apt -y install openssl
 RUN apt-get update \
-    && apt-get install -y ca-certificates tzdata sqlite3 libc6 \
+    && apt-get install -y ca-certificates tzdata sqlite3 protobuf-compiler libc6 \
     && rm -rf /var/lib/apt/lists/*
 
 EXPOSE 8080
