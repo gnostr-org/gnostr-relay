@@ -26,7 +26,7 @@ COPY ./build.rs ./build.rs
 RUN rm ./target/release/deps/nostr*relay*
 RUN cargo auditable build --release --locked
 
-FROM docker.io/library/debian:bullseye-slim
+FROM docker.io/library/debian:bookworm-slim
 
 FROM docker.io/debian:latest
 ARG APP=/usr/src/app
