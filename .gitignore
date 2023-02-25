@@ -1,4 +1,9 @@
 **/target/
 nostr.db
+#<<<<<<< HEAD
 nostr.db-shm
 nostr.db-wal
+#=======
+nostr.db-*
+justfile
+#>>>>>>> c0158af (feat(NIP-111): pay to relay (experimental))
