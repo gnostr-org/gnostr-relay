@@ -6,4 +6,7 @@ nostr.db-wal
 #=======
 nostr.db-*
 justfile
+#<<<<<<< HEAD
 #>>>>>>> c0158af (feat(NIP-111): pay to relay (experimental))
+#=======
+#>>>>>>> 9e22776 (refactor: whitespace)
