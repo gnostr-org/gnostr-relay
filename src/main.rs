@@ -16,12 +16,20 @@ use tracing::info;
 use tracing_appender::non_blocking::WorkerGuard;
 use tracing_subscriber::EnvFilter;
 
+use dirs::home_dir;
+
 #[cfg(not(target_env = "msvc"))]
 #[global_allocator]
 static GLOBAL: Jemalloc = Jemalloc;
 
 /// Start running a Nostr relay server.
 fn main() {
+
+    let home = home_dir();
+    let gnostr_home: String = home.expect("REASON").display().to_string();
+    //println!("{:?}", gnostr_home);
+    let _ = fs::create_dir_all(gnostr_home + "/.gnostr/relay");
+
     let args = CLIArgs::parse();
 
     // get config file name from args
@@ -57,6 +65,14 @@ fn main() {
         process::exit(1);
     });
 
+    let config_port_arg = args.port;
+    if let Some(config_port) = config_port_arg {
+        settings.network.port = config_port;
+    }
+    #[cfg(debug_assertions)]
+    println!("config_port_arg={:?}", config_port_arg);
+
+
     // setup tracing
     if settings.diagnostics.tracing {
         // enable tracing with tokio-console
@@ -87,12 +103,34 @@ fn main() {
     }
     info!("Starting up from main");
 
+    let home = home_dir();
+    let gnostr_home: String = home.expect("REASON").display().to_string();
+    #[cfg(debug_assertions)]
+    println!("{:?}", gnostr_home);
+
+    let _ = fs::create_dir_all(gnostr_home + "/.gnostr/relay");
+
     // get database directory from args
     let db_dir_arg = args.db;
 
     // update with database location from args, if provided
     if let Some(db_dir) = db_dir_arg {
         settings.database.data_directory = db_dir;
+    }
+    else {
+      let home = home_dir();
+      let gnostr_home: String = home.expect("REASON").display().to_string();
+
+      #[cfg(debug_assertions)]
+      println!("gnostr_home={:?}", gnostr_home);
+
+      let _db_home = fs::create_dir_all(gnostr_home.clone() + "/.gnostr/relay");
+
+      #[cfg(debug_assertions)]
+      println!("_db_home={:?}", _db_home);
+
+      settings.database.data_directory = gnostr_home.clone() + "/.gnostr/relay";
+
     }
     // we should have a 'control plane' channel to monitor and bump
     // the server.  this will let us do stuff like clear the database,
