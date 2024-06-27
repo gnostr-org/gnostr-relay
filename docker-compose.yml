@@ -1,0 +1,17 @@
+version: '3.4'
+services:
+
+  debian:
+    container_name: ${PROJECT_NAME}
+    hostname: ${PROJECT_NAME}
+    image: ${PROJECT_NAME}
+    privileged: true
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["tail", "-f", "/dev/null"]
+    volumes:
+      - ${PWD:-.}/data:/usr/src/app/data
+    ports:
+      - 3232:8080
+

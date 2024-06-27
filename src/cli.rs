@@ -24,4 +24,10 @@ pub struct CLIArgs {
         required = false
     )]
     pub config: Option<String>,
+    #[arg(
+        long,
+        help = "Display the gnostr-relay-dashboard",
+        required = false
+    )]
+    pub dashboard: bool,
 }

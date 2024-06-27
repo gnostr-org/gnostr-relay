@@ -30,7 +30,16 @@ fn main() {
     //println!("{:?}", gnostr_home);
     let _ = fs::create_dir_all(gnostr_home + "/.gnostr/relay");
 
-    let args = CLIArgs::parse();
+    let mut args = CLIArgs::parse();
+    let mut display_dash: bool = args.dashboard;
+
+    //print!("\nargs.dashboard={}\n",args.dashboard);
+
+    if args.dashboard{
+    let display_dash = args.dashboard;
+    //print!("args.dashboard={}\n",args.dashboard);
+    print!("display_dash={}\n",display_dash);
+    }
 
     // get config file name from args
     let config_file_arg = args.config;

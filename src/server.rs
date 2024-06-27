@@ -1075,23 +1075,33 @@ async fn nostr_server(
     let orig_start = Instant::now();
     // get a broadcast channel for clients to communicate on
     let mut bcast_rx = broadcast.subscribe();
+
     // Track internal client state
     let mut conn = conn::ClientConn::new(client_info.remote_ip);
+
     // subscription creation rate limiting
     let mut sub_lim_opt = None;
+
     // 100ms jitter when the rate limiter returns
     let jitter = Jitter::up_to(Duration::from_millis(100));
+
     let sub_per_min_setting = settings.limits.subscriptions_per_min;
+
     if let Some(sub_per_min) = sub_per_min_setting {
+
         if sub_per_min > 0 {
+
             trace!("Rate limits for sub creation ({}/min)", sub_per_min);
             let quota_time = core::num::NonZeroU32::new(sub_per_min).unwrap();
             let quota = Quota::per_minute(quota_time);
             sub_lim_opt = Some(RateLimiter::direct(quota));
+
         }
+
     }
     // Use the remote IP as the client identifier
     let cid = conn.get_client_prefix();
+
     // Create a channel for receiving query results from the database.
     // we will send out the tx handle to any query we generate.
     // this has capacity for some of the larger requests we see, which
@@ -1181,6 +1191,9 @@ async fn nostr_server(
                     ws_stream.send(Message::Text(send_str)).await.ok();
                 }
             },
+
+
+
             // TODO: consider logging the LaggedRecv error
             Ok(global_event) = bcast_rx.recv() => {
                 // an event has been broadcast to all clients
@@ -1192,23 +1205,35 @@ async fn nostr_server(
                     // TODO: serialize at broadcast time, instead of
                     // once for each consumer.
                     if let Ok(event_str) = serde_json::to_string(&global_event) {
+
                         if allowed_to_send(&event_str, &conn, &settings) {
+
                             // create an event response and send it
                             trace!("sub match for client: {}, sub: {:?}, event: {:?}",
                                cid, s,
                                global_event.get_event_id_prefix());
+
                             let subesc = s.replace('"', "");
                             metrics.sent_events.with_label_values(&["realtime"]).inc();
                             ws_stream.send(Message::Text(format!("[\"EVENT\",\"{subesc}\",{event_str}]"))).await.ok();
+
                         }
+
                     } else {
                         warn!("could not serialize event: {:?}", global_event.get_event_id_prefix());
                     }
                 }
             },
+
+
+
             ws_next = ws_stream.next() => {
+
+
                 // update most recent message time for client
                 last_message_time = Instant::now();
+
+
                 // Consume text messages from the client, parse into Nostr messages.
                 let nostr_msg = match ws_next {
                     Some(Ok(Message::Text(m))) => {

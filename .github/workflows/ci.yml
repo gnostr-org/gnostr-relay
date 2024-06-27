@@ -1,9 +1,25 @@
-name: Test and build
+name: ci.yml
 
 on:
+  schedule:
+    - cron: '0 2 * * *' # run at 2 AM UTC
+  pull_request:
+    branches:
+      - '*'
+      - '*/*'
+      - '**'
+      - 'master'
+      - 'main'
   push:
     branches:
-      - master
+      - '*'
+      - '*/*'
+      - '**'
+      - 'master'
+      - 'main'
+
+env:
+  GIT_DISCOVERY_ACROSS_FILESYSTEM: 1
 
 jobs:
   test_nostr-rs-relay:

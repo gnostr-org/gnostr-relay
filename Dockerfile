@@ -1,7 +1,7 @@
-FROM docker.io/library/rust:1-bookworm as builder
-RUN apt-get update \
-    && apt-get install -y cmake protobuf-compiler \
-    && rm -rf /var/lib/apt/lists/*
+FROM rust:latest AS builder
+#RUN apt-get update #\
+##     && apt-get install -y cmake protobuf-compiler \
+##     && rm -rf /var/lib/apt/lists/*
 RUN USER=root cargo install cargo-auditable
 RUN USER=root cargo new --bin nostr-rs-relay
 WORKDIR ./nostr-rs-relay
@@ -21,12 +21,12 @@ COPY ./build.rs ./build.rs
 RUN rm ./target/release/deps/nostr*relay*
 RUN cargo auditable build --release --locked
 
-FROM docker.io/library/debian:bookworm-slim
+FROM rust:latest
 
 ARG APP=/usr/src/app
 ARG APP_DATA=/usr/src/app/db
 RUN apt-get update \
-    && apt-get install -y ca-certificates tzdata sqlite3 libc6 \
+    && apt-get install -y ca-certificates tzdata libc6 \
     && rm -rf /var/lib/apt/lists/*
 
 EXPOSE 8080
