@@ -1,8 +1,8 @@
-use chorus::config::{Config, FriendlyConfig};
-use chorus::error::Error;
-use chorus::globals::GLOBALS;
-use chorus::ip::HashedPeer;
-use chorus::tls::MaybeTlsStream;
+use gnostr_relay::config::{Config, FriendlyConfig};
+use gnostr_relay::error::Error;
+use gnostr_relay::globals::GLOBALS;
+use gnostr_relay::ip::HashedPeer;
+use gnostr_relay::tls::MaybeTlsStream;
 use std::env;
 use std::fs::OpenOptions;
 use std::io::Read;
@@ -16,33 +16,33 @@ async fn main() -> Result<(), Error> {
     // Get args (config path)
     let mut args = env::args();
     if args.len() <= 1 {
-        panic!("USAGE: chorus <config_path>");
+        panic!("USAGE: gnostr_relay .gnostr/gnostr.config.toml");
     }
     let _ = args.next(); // ignore program name
     let config_path = args.next().unwrap();
 
-    let config = chorus::load_config(&config_path)?;
+    let config = gnostr_relay::load_config(&config_path)?;
 
-    chorus::setup_logging(&config);
+    gnostr_relay::setup_logging(&config);
 
     // Log host name
-    // log::info!(target: "Server", "HOSTNAME = {}", config.hostname);
+    log::info!(target: "Server", "HOSTNAME = {}", config.hostname);
 
-    let store = chorus::setup_store(&config)?;
+    let store = gnostr_relay::setup_store(&config)?;
     let _ = GLOBALS.store.set(store);
 
     // TLS setup
     let maybe_tls_acceptor = if config.use_tls {
-        //log::info!(target: "Server", "Using TLS");
-        Some(chorus::tls::tls_acceptor(&config)?)
+        log::info!(target: "Server", "Using TLS");
+        Some(gnostr_relay::tls::tls_acceptor(&config)?)
     } else {
-        //log::info!(target: "Server", "Not using TLS");
+        log::info!(target: "Server", "Not using TLS");
         None
     };
 
     // Bind listener to port
     let listener = TcpListener::bind((&*config.ip_address, config.port)).await?;
-    //log::info!(target: "Server", "Running on {}:{}", config.ip_address, config.port);
+    log::info!(target: "Server", "Running on {}:{}", config.ip_address, config.port);
 
     // Store config into GLOBALS
     *GLOBALS.config.write() = config;
@@ -81,7 +81,7 @@ async fn main() -> Result<(), Error> {
 
                 *GLOBALS.config.write() = config;
 
-                //chorus::print_stats();
+                gnostr_relay::print_stats();
             },
 
             // Accepts network connections and spawn a task to serve each one
@@ -94,7 +94,7 @@ async fn main() -> Result<(), Error> {
 
                 // Possibly IP block
                 if GLOBALS.config.read().enable_ip_blocking {
-                    let ip_data = chorus::get_ip_data(GLOBALS.store.get().unwrap(), hashed_peer.ip())?;
+                    let ip_data = gnostr_relay::get_ip_data(GLOBALS.store.get().unwrap(), hashed_peer.ip())?;
                     if ip_data.is_banned() {
                         log::trace!(target: "Client",
                                     "{}: Blocking reconnection until {}",
@@ -113,7 +113,7 @@ async fn main() -> Result<(), Error> {
                                 "{}: {}", hashed_peer, e
                             ),
                             Ok(tls_stream) => {
-                                if let Err(e) = chorus::serve(MaybeTlsStream::Rustls(tls_stream), hashed_peer).await {
+                                if let Err(e) = gnostr_relay::serve(MaybeTlsStream::Rustls(tls_stream), hashed_peer).await {
                                     log::error!(
                                         target: "Client",
                                         "{}: {}", hashed_peer, e
@@ -123,7 +123,7 @@ async fn main() -> Result<(), Error> {
                         }
                     });
                 } else {
-                    chorus::serve(MaybeTlsStream::Plain(tcp_stream), hashed_peer).await?;
+                    gnostr_relay::serve(MaybeTlsStream::Plain(tcp_stream), hashed_peer).await?;
                 }
             }
         };
@@ -167,7 +167,7 @@ async fn main() -> Result<(), Error> {
     log::info!(target: "Server", "Syncing and shutting down.");
     let _ = GLOBALS.store.get().unwrap().sync();
 
-    //chorus::print_stats();
+    gnostr_relay::print_stats();
 
     Ok(())
 }

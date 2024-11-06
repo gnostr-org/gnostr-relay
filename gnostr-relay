@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+cargo build $QUIET --release && \
+    ./target/release/chorus .gnostr/gnostr.config.toml

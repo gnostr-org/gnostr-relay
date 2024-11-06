@@ -43,84 +43,79 @@ use tungstenite::Message;
 
 //use std::process::Command;
 
-pub async fn run_command(command: &str, arg1: &str, arg2:&str) -> Result<String, Error> {
+pub async fn run_command(command: &str, arg1: &str, arg2: &str) -> Result<String, Error> {
     //use async_executor::Executor;
-  //  use async_process::{driver, Command};
+    //  use async_process::{driver, Command};
 
+    //use futures_lite::{io::BufReader, prelude::*};
 
+    //use std::process::Stdio;
+    //use futures_lite::AsyncReadExt;
+    use async_process::{Command, Stdio};
+    use futures_lite::{io::BufReader, prelude::*};
 
-//use futures_lite::{io::BufReader, prelude::*};
+    //gnostr
+    //--sec
+    //$(gnostr-sha256)
+    //--content
+    //"test"
+    //-t
+    //gnostr
+    //--tag
+    //gnostr
+    //test
+    //|
+    //gnostr-post-event
+    //ws://127.0.0.1:8080
 
-//use std::process::Stdio;
-//use futures_lite::AsyncReadExt;
-use async_process::{Command, Stdio};
-use futures_lite::{io::BufReader, prelude::*};
+    log::info!("src/lib.rs");
+    log::info!("command={}", command);
+    log::info!("arg1={}", arg1);
+    log::info!("arg2={}", arg2);
 
-//gnostr
-//--sec
-//$(gnostr-sha256)
-//--content
-//"test"
-//-t
-//gnostr
-//--tag
-//gnostr
-//test
-//|
-//gnostr-post-event
-//ws://127.0.0.1:8080
+    static GNOSTR: &str = "gnostr";
+    static SEC: &str = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
+    let event = Command::new(GNOSTR)
+        .arg("--sec")
+        .arg(SEC)
+        .arg("--content")
+        .arg("test")
+        .arg("-t")
+        .arg("gnostr")
+        .arg("--tag")
+        .arg("gnostr")
+        .arg("test")
+        .arg("--tag")
+        .arg("gnostr-post-event")
+        .arg("test")
+        //.arg(" | ")
+        //.arg("gnostr-post-event")
+        .output()
+        .await?;
 
-    log::info!("command={}",command);
-    log::info!("arg1={}",arg1);
-    log::info!("arg2={}",arg2);
+    // Convert stdout bytes to a String
+    let mut event_string = String::from_utf8(event.stdout).expect("invalid utf-8");
 
-static GNOSTR: &str = "gnostr";
-static SEC: &str = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
-let event =
-Command::new(GNOSTR)
-.arg("--sec")
-.arg(SEC)
-.arg("--content")
-.arg("test")
-.arg("-t")
-.arg("gnostr")
-.arg("--tag")
-.arg("gnostr")
-.arg("test")
-.arg("--tag")
-.arg("gnostr-post-event")
-.arg("test")
-//.arg(" | ")
-//.arg("gnostr-post-event")
-.output().await?;
+    println!("\nlib.rs:100:Command output:\n{}", event_string);
 
-// Convert stdout bytes to a String
-let mut event_string = String::from_utf8(event.stdout).expect("invalid utf-8");
+    let write_result = std::fs::write("event_string.txt", &mut event_string)?;
+    //println!("Successfully wrote data to data.txt");
 
-println!("\nlib.rs:100:Command output:\n{}", event_string);
+    static GNOSTR_POST_EVENT: &str = "gnostr-post-event";
 
+    let gnostr_post_event = Command::new(GNOSTR_POST_EVENT)
+        .arg("wss://relay.damus.io")
+        .arg(event_string)
+        .output()
+        .await?;
 
-let write_result = std::fs::write("event_string.txt", &mut event_string)?;
-//println!("Successfully wrote data to data.txt");
+    // Convert stdout bytes to a String
+    let mut post_result = String::from_utf8(gnostr_post_event.stdout).expect("invalid utf-8");
 
-static GNOSTR_POST_EVENT: &str = "gnostr-post-event";
+    println!("Command output:\n{}", post_result);
 
-let gnostr_post_event =
-Command::new(GNOSTR_POST_EVENT)
-.arg("wss://relay.damus.io")
-.arg(event_string)
-.output().await?;
-
-// Convert stdout bytes to a String
-let mut post_result = String::from_utf8(gnostr_post_event.stdout).expect("invalid utf-8");
-
-println!("Command output:\n{}", post_result);
-
-
-let write_result = std::fs::write("event_string.txt", &mut post_result)?;
-println!("Successfully wrote data to data.txt");
-
-
+    let write_result = std::fs::write("event_string.txt", &mut post_result)?;
+    println!("Successfully wrote data to data.txt");
 
     Ok(String::new())
 }
@@ -437,15 +432,13 @@ impl WebSocketService {
         static ARG1: &str = "";
         static ARG2: &str = "";
         let mut long_message = String::with_capacity(128); // Allocate space for 128 bytes
-        //long_message.push_str(msg);
+                                                           //long_message.push_str(msg);
 
         match message {
             Message::Text(msg) => {
                 //log::trace!(target: "Client", "{}: <= {}", self.peer, msg);
                 //log::info!("target: Client, {}: <= {}", self.peer, msg);
                 log::trace!("{}: <= {}\n", self.peer, msg);
-
-
 
                 //log::trace!("{}{:?}",msg,event);
                 //print!("lib.rs:360:{}{:?}\n",msg,event);
@@ -457,10 +450,10 @@ impl WebSocketService {
                 //
                 //
                 long_message.push_str(&msg);
-                log::info!("460:{}",long_message);
-                let future = run_command(GNOSTR_POST_EVENT, &long_message,ARG2);
+                log::info!("460:{}", long_message);
+                let future = run_command(GNOSTR_POST_EVENT, &long_message, ARG2);
                 let result = block_on(future);
-                print!("463:{:}",result.unwrap());
+                print!("463:{:}", result.unwrap());
                 self.replied = false;
                 //self.replied = true;
                 // This is defined in nostr.rs

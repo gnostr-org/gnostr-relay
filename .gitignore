@@ -1,2 +1,4 @@
+.gnostr
+!.gnostr/gnostr.config.toml
 /target
 /tls/

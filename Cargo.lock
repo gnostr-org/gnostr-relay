@@ -816,40 +816,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "chorus"
-version = "1.4.0"
-dependencies = [
- "async-executor",
- "async-process 2.2.2",
- "async_command",
- "base64 0.22.1",
- "dashmap",
- "env_logger 0.10.2",
- "futures",
- "futures-lite 2.3.0",
- "gnostr-bins",
- "gnostr-types",
- "hyper",
- "hyper-tungstenite",
- "lazy_static",
- "log",
- "parking_lot 0.12.2",
- "pocket-db",
- "pocket-types",
- "rustls-pemfile",
- "secp256k1 0.28.2",
- "serde",
- "serde_json",
- "speedy",
- "tempfile",
- "textnonce",
- "tokio",
- "tokio-rustls 0.24.1",
- "toml",
- "url",
-]
-
-[[package]]
 name = "chrono"
 version = "0.4.38"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1944,6 +1910,40 @@ dependencies = [
  "sha2 0.10.8",
  "snow",
  "tracing",
+]
+
+[[package]]
+name = "gnostr-relay"
+version = "0.0.5"
+dependencies = [
+ "async-executor",
+ "async-process 2.2.2",
+ "async_command",
+ "base64 0.22.1",
+ "dashmap",
+ "env_logger 0.10.2",
+ "futures",
+ "futures-lite 2.3.0",
+ "gnostr-bins",
+ "gnostr-types",
+ "hyper",
+ "hyper-tungstenite",
+ "lazy_static",
+ "log",
+ "parking_lot 0.12.2",
+ "pocket-db",
+ "pocket-types",
+ "rustls-pemfile",
+ "secp256k1 0.28.2",
+ "serde",
+ "serde_json",
+ "speedy",
+ "tempfile",
+ "textnonce",
+ "tokio",
+ "tokio-rustls 0.24.1",
+ "toml",
+ "url",
 ]
 
 [[package]]

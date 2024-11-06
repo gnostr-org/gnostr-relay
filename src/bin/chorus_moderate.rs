@@ -1,4 +1,4 @@
-use chorus::error::Error;
+use gnostr_relay::error::Error;
 use pocket_types::{Event, Filter, Kind};
 use std::env;
 use std::io::Write;
@@ -7,18 +7,18 @@ fn main() -> Result<(), Error> {
     // Get args (config path)
     let mut args = env::args();
     if args.len() <= 1 {
-        panic!("USAGE: chorus_moderate <config_path>");
+        panic!("USAGE: gnostr_relay_moderate <config_path>");
     }
     let _ = args.next(); // ignore program name
     let config_path = args.next().unwrap();
 
-    let mut config = chorus::load_config(config_path)?;
+    let mut config = gnostr_relay::load_config(config_path)?;
     // Force allow of scraping (this program is a scraper)
     config.allow_scraping = true;
 
-    chorus::setup_logging(&config);
+    gnostr_relay::setup_logging(&config);
 
-    let store = chorus::setup_store(&config)?;
+    let store = gnostr_relay::setup_store(&config)?;
 
     let mut buffer: [u8; 128] = [0; 128];
     let (_incount, _outcount, filter) = Filter::from_json(b"{}", &mut buffer)?;
@@ -63,7 +63,7 @@ fn main() -> Result<(), Error> {
 
         // Skip if event marked approved
         if matches!(
-            chorus::get_event_approval(&store, event.id()),
+            gnostr_relay::get_event_approval(&store, event.id()),
             Ok(Some(true))
         ) {
             continue;
@@ -71,7 +71,7 @@ fn main() -> Result<(), Error> {
 
         // Skip if pubkey marked approved
         if matches!(
-            chorus::get_pubkey_approval(&store, event.pubkey()),
+            gnostr_relay::get_pubkey_approval(&store, event.pubkey()),
             Ok(Some(true))
         ) {
             continue;
@@ -79,7 +79,7 @@ fn main() -> Result<(), Error> {
 
         // Delete if pubkey marked banned
         if matches!(
-            chorus::get_pubkey_approval(&store, event.pubkey()),
+            gnostr_relay::get_pubkey_approval(&store, event.pubkey()),
             Ok(Some(false))
         ) {
             store.remove_event(event.id())?;
@@ -105,23 +105,23 @@ fn main() -> Result<(), Error> {
             }
             match input.bytes().next().unwrap() {
                 b'p' => {
-                    chorus::mark_pubkey_approval(&store, event.pubkey(), true)?;
+                    gnostr_relay::mark_pubkey_approval(&store, event.pubkey(), true)?;
                     println!("User approved.");
                     break;
                 }
                 b'P' => {
-                    chorus::mark_pubkey_approval(&store, event.pubkey(), false)?;
+                    gnostr_relay::mark_pubkey_approval(&store, event.pubkey(), false)?;
                     store.remove_event(event.id())?;
                     println!("User banned.");
                     break;
                 }
                 b'i' => {
-                    chorus::mark_event_approval(&store, event.id(), true)?;
+                    gnostr_relay::mark_event_approval(&store, event.id(), true)?;
                     println!("Event approved.");
                     break;
                 }
                 b'I' => {
-                    chorus::mark_event_approval(&store, event.id(), false)?;
+                    gnostr_relay::mark_event_approval(&store, event.id(), false)?;
                     store.remove_event(event.id())?;
                     println!("Event banned.");
                     break;

@@ -1,10 +1,10 @@
 [package]
-name = "chorus"
-version = "1.4.0"
-description = "A personal relay for nostr"
-authors = ["Mike Dilger <mike@mikedilger.com>"]
+name = "gnostr-relay"
+version = "0.0.5"
+description = "gnostr:a gnostr-relay"
+authors = ["gnostt <admin@gnostr.org>", "Mike Dilger <mike@mikedilger.com>"]
 license = "MIT"
-repository = "https://github.com/mikedilger/chorus"
+repository = "https://github.com/gnostr-org/gnostr-relay"
 edition = "2021"
 
 [dependencies]

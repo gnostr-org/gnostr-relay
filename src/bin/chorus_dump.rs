@@ -1,4 +1,4 @@
-use chorus::error::Error;
+use gnostr_relay::error::Error;
 use pocket_types::{Event, Filter};
 use std::env;
 
@@ -6,20 +6,20 @@ fn main() -> Result<(), Error> {
     // Get args (config path)
     let mut args = env::args();
     if args.len() <= 1 {
-        panic!("USAGE: chorus_dump <chorus_config_path>");
+        panic!("USAGE: gnostr_relay_dump <gnostr_relay_config_path>");
     }
     let _ = args.next(); // ignore program name
     let config_path = args.next().unwrap();
 
-    let mut config = chorus::load_config(config_path)?;
+    let mut config = gnostr_relay::load_config(config_path)?;
 
     // Force allow of scraping (this program is a scraper)
     config.allow_scraping = true;
 
-    chorus::setup_logging(&config);
+    gnostr_relay::setup_logging(&config);
 
     // Setup store
-    let store = chorus::setup_store(&config)?;
+    let store = gnostr_relay::setup_store(&config)?;
 
     let mut buffer: [u8; 128] = [0; 128];
     let (_incount, _outcount, filter) = Filter::from_json(b"{}", &mut buffer)?;
