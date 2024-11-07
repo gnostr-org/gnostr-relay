@@ -8,6 +8,14 @@ repository = "https://github.com/gnostr-org/gnostr-relay"
 edition = "2021"
 
 [dependencies]
+bytes = "1.6.0"
+tui-term = { version = "0.2.0", features = ["unstable"] }
+crossterm = "0.28"
+ratatui = { version = "0.29.0", default-features = true }
+vt100 = { version = "0.15.2", optional = true }
+portable-pty = { version = "0.8.1" }
+
+
 base64 = "0.22"
 dashmap = "5.5"
 env_logger = "0.10"
